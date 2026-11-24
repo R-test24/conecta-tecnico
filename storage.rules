@@ -1,0 +1,13 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /private/{uid}/images/{file} {
+      function owner() { return request.auth != null && request.auth.uid == uid; }
+      allow get, delete: if owner();
+      allow create: if owner()
+        && file.matches('[a-zA-Z0-9_-]{1,80}[.](jpg|png|webp)')
+        && request.resource.size > 0 && request.resource.size <= 2 * 1024 * 1024
+        && request.resource.contentType.matches('image/(jpeg|png|webp)');
+    }
+  }
+}

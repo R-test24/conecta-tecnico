@@ -1,0 +1,168 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // profiles/{uid}: private name, requested role and immutable creation time.
+    // administrators/{uid}: trusted access marker, created outside client SDKs.
+    // approvedOrganizations/{uid}: approved public-facing company name, set by an administrator.
+    // events/{eventId}: description, schedule, organization, capacity and moderation status.
+    // events/{eventId}/attendees/{uid}: private student name and registration time.
+
+    function isAuthenticated() { return request.auth != null; }
+    function isOwner(uid) { return isAuthenticated() && request.auth.uid == uid; }
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.get('admin', false) == true
+        || hasAdministratorAccess(request.auth.uid)
+      );
+    }
+
+    function hasAdministratorAccess(uid) {
+      let access = /databases/$(database)/documents/administrators/$(uid);
+      return exists(access) && get(access).data.enabled == true;
+    }
+
+    function boundedText(value, min, max) {
+      return value is string && value.size() >= min && value.size() <= max;
+    }
+
+    function profilePath(uid) {
+      return /databases/$(database)/documents/profiles/$(uid);
+    }
+
+    function organizationPath(uid) {
+      return /databases/$(database)/documents/approvedOrganizations/$(uid);
+    }
+
+    function eventPath(eventId) {
+      return /databases/$(database)/documents/events/$(eventId);
+    }
+
+    function attendeePath(eventId, uid) {
+      return /databases/$(database)/documents/events/$(eventId)/attendees/$(uid);
+    }
+
+    function validProfile(data) {
+      return data.keys().hasOnly(['name', 'requestedRole', 'createdAt'])
+        && boundedText(data.name, 2, 60)
+        && data.requestedRole in ['estudante', 'empresa', 'escola']
+        && data.createdAt is timestamp;
+    }
+
+    function validEvent(data) {
+      return data.keys().hasOnly([
+          'title', 'description', 'location', 'startsAt', 'capacity', 'organizationId',
+          'organizationName', 'status', 'registeredCount', 'createdAt'
+        ])
+        && boundedText(data.title, 3, 100)
+        && boundedText(data.description, 10, 2000)
+        && boundedText(data.location, 3, 160)
+        && boundedText(data.organizationId, 1, 128)
+        && boundedText(data.organizationName, 2, 100)
+        && data.startsAt is timestamp && data.createdAt is timestamp
+        && data.status in ['pending', 'published', 'rejected']
+        && data.capacity is int && data.capacity >= 1 && data.capacity <= 500
+        && data.registeredCount is int && data.registeredCount >= 0
+        && data.registeredCount <= data.capacity;
+    }
+
+    function validAttendee(data) {
+      return data.keys().hasOnly(['studentName', 'createdAt'])
+        && boundedText(data.studentName, 2, 60)
+        && data.createdAt == request.time;
+    }
+
+    function validSeatChange(before, after) {
+      return before.status == 'published' && before.startsAt > request.time
+        && after.diff(before).affectedKeys().hasOnly(['registeredCount'])
+        && after.registeredCount == before.registeredCount + 1
+        && after.registeredCount <= before.capacity;
+    }
+
+    match /profiles/{uid} {
+      allow get: if isOwner(uid) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isOwner(uid) && validProfile(request.resource.data)
+        && request.resource.data.createdAt == request.time;
+      allow update: if isOwner(uid) && validProfile(request.resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name']);
+    }
+
+    function validOrganizationApproval(uid, data) {
+      return data.keys().hasOnly(['name'])
+        && boundedText(data.name, 2, 60)
+        && exists(profilePath(uid))
+        && get(profilePath(uid)).data.requestedRole == 'empresa'
+        && get(profilePath(uid)).data.name == data.name;
+    }
+
+    function canSubmitCompanyEvent(data) {
+      return data.status == 'pending'
+        && exists(profilePath(request.auth.uid))
+        && get(profilePath(request.auth.uid)).data.requestedRole == 'empresa'
+        && exists(organizationPath(request.auth.uid))
+        && get(organizationPath(request.auth.uid)).data.name == data.organizationName;
+    }
+
+    function validModeration(before, after) {
+      return before.status == 'pending' && before.registeredCount == 0
+        && after.diff(before).affectedKeys().hasOnly(['status'])
+        && (after.status == 'rejected' || (
+          after.status == 'published' && before.startsAt > request.time
+          && exists(organizationPath(before.organizationId))
+        ));
+    }
+
+    match /administrators/{uid} {
+      allow get: if isOwner(uid);
+    }
+
+    match /approvedOrganizations/{uid} {
+      allow get: if isOwner(uid) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isAdmin() && validOrganizationApproval(uid, request.resource.data);
+    }
+
+    match /events/{eventId} {
+      allow get: if resource == null || resource.data.status == 'published'
+        || isOwner(resource.data.organizationId) || isAdmin();
+      allow list: if resource.data.status == 'published'
+        || isOwner(resource.data.organizationId) || isAdmin();
+      allow create: if validEvent(request.resource.data)
+        && isOwner(request.resource.data.organizationId)
+        && request.resource.data.registeredCount == 0
+        && request.resource.data.startsAt > request.time
+        && request.resource.data.createdAt == request.time
+        && (canSubmitCompanyEvent(request.resource.data) || (
+          isAdmin() && request.resource.data.status == 'published'
+          && request.resource.data.organizationName == 'Conecta Técnico'
+        ));
+
+      allow update: if isAdmin() && validEvent(request.resource.data)
+        && validModeration(resource.data, request.resource.data);
+
+      // An event counter can advance only with the caller's new registration.
+      allow update: if isAuthenticated() && validEvent(request.resource.data)
+        && validSeatChange(resource.data, request.resource.data)
+        && !exists(attendeePath(eventId, request.auth.uid))
+        && existsAfter(attendeePath(eventId, request.auth.uid));
+
+      match /attendees/{uid} {
+        allow get: if isOwner(uid) || isAdmin()
+          || isOwner(get(eventPath(eventId)).data.organizationId);
+        allow list: if isAdmin() || isOwner(get(eventPath(eventId)).data.organizationId);
+        allow create: if isOwner(uid) && validAttendee(request.resource.data)
+          && get(profilePath(uid)).data.requestedRole == 'estudante'
+          && request.resource.data.studentName == get(profilePath(uid)).data.name
+          && validSeatChange(get(eventPath(eventId)).data, getAfter(eventPath(eventId)).data);
+      }
+    }
+
+    match /{collection}/{id} {
+      allow read: if collection in ['companies', 'jobs']
+        && (resource.data.status == 'published' || isAdmin());
+      allow read: if collection in ['registrations', 'applications']
+        && (isOwner(resource.data.studentId) || isOwner(resource.data.organizationId) || isAdmin());
+      allow read: if collection == 'auditLogs' && isAdmin();
+    }
+  }
+}
