@@ -17,7 +17,7 @@ export default function Home() {
       <div className="hero-copy"><div className="hero-badge"><Sparkles size={15}/> Uma nova conexão entre educação e mercado.</div>
       <h1>Seu talento merece encontrar grandes <em>oportunidades.</em></h1>
       <p>Conectamos estudantes, escolas e empresas para transformar conhecimento em experiências reais, capacitação e desenvolvimento profissional.</p>
-      <div className="actions"><Link className="button primary" href="/oportunidades">Explorar oportunidades</Link><Link className="button outline" href="/empresa"><Building2 size={17}/> Sou uma empresa</Link></div>
+      <div className="actions"><Link className="button primary" href="/oportunidades">Explorar oportunidades</Link><Link className="button outline" href="/empresas"><Building2 size={17}/> Sou uma empresa</Link></div>
       <div className="benefits"><span><GraduationCap/> Ensino técnico</span><span><Users/> Conexões profissionais</span><span><Zap/> Aprendizado na prática</span></div></div>
       <div className="hero-visual"><Photo image="hero" priority/><Link className="float float-top" href="/oportunidades"><span className="tile-icon blue"><Zap size={20}/></span><div><strong>Novas oportunidades</strong><small>Explore vagas e estágios</small></div></Link><Link className="float float-bottom" href="/empresas"><span className="tile-icon green"><Building2 size={20}/></span><div><strong>Empresas parceiras</strong><small>Conheça o catálogo</small></div></Link></div>
     </div></section>
@@ -45,6 +45,6 @@ export default function Home() {
     <section className="section wrap"><Reveal><div className="section-heading has-action"><div><p className="eyebrow">Carreira</p><h2>Oportunidades para começar</h2><p>Encontre estágios, programas de aprendizagem e vagas de primeiro emprego.</p></div><Link className="button outline" href="/oportunidades">Ver oportunidades</Link></div></Reveal><div className="grid-three">{jobs.map((item, index) => <Reveal key={item.id} delay={index * 0.06}><JobCard item={item}/></Reveal>)}</div></section>
     <section className="section tinted"><div className="wrap"><Reveal><div className="section-heading has-action"><div><p className="eyebrow">Empresas parceiras</p><h2>Conheça quem forma novos talentos</h2><p>Explore os perfis demonstrativos de organizações de diferentes setores.</p></div><Link className="button outline" href="#planos">Ver planos para empresas</Link><Link className="button outline" href="/empresas">Ver catálogo</Link></div></Reveal><div className="grid-three">{companies.map((item, index) => <Reveal key={item.id} delay={index * 0.06}><CompanyCard item={item}/></Reveal>)}</div></div></section>
     <CompanyPlans/>
-    <section className="section tinted"><div className="wrap"><Reveal><div className="cta"><div><h2>Conectando talentos às oportunidades do futuro.</h2><p>Educação, empresas e oportunidades reunidas em um só lugar.</p></div><Link className="button white" href="/cadastro">Criar conta</Link></div></Reveal></div></section>
+    <section className="section tinted"><div className="wrap"><Reveal><div className="cta"><div><h2>Conectando talentos às oportunidades do futuro.</h2><p>Educação, empresas e oportunidades reunidas em um só lugar.</p></div><Link className="button white" href="/cadastro">Criar conta de demonstração</Link></div></Reveal></div></section>
   </>;
 }

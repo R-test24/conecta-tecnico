@@ -5,6 +5,7 @@ import { EventCard, JobCard } from "@/components/cards";
 import { Photo } from "@/components/photo";
 import { FirebaseEventDetail } from "@/components/firebase-events";
 import { firebaseConfigured } from "@/lib/firebase/client";
+import { DemoAction } from "@/components/account";
 
 export default async function Detail({params}: {params:Promise<{area:string;id:string}>}) {
   const {area,id} = await params;
@@ -17,12 +18,12 @@ export default async function Detail({params}: {params:Promise<{area:string;id:s
     if (firebaseConfigured) return <FirebaseEventDetail key={id} id={id}/>;
     const event=events.find(item=>item.id===id);
     if(!event) notFound();
-    return <section className="wrap section detail"><Link href="/eventos" className="eyebrow">Voltar aos eventos</Link><div className="cover"><Photo image={event.image}/></div><p className="eyebrow">{event.category} · Demonstração</p><h1>{event.title}</h1><div className="prose"><Link href={"/empresas/"+event.company.id}>{event.company.name}</Link><p>{event.description}</p><h2>Data e local</h2><p>{formatDate(event.date)} às {event.time} · {event.company.city}</p><p>{event.location}</p><h2>Participação</h2><p>{event.audience} · {event.seats} vagas demonstrativas</p><p>{event.requirements}</p><p>Responsável · {event.contact}</p><p className="notice">Evento ilustrativo para explorar o catálogo.</p></div></section>;
+    return <section className="wrap section detail"><Link href="/eventos" className="eyebrow">Voltar aos eventos</Link><div className="cover"><Photo image={event.image}/></div><p className="eyebrow">{event.category} · Demonstração</p><h1>{event.title}</h1><div className="prose"><Link href={"/empresas/"+event.company.id}>{event.company.name}</Link><p>{event.description}</p><h2>Data e local</h2><p>{formatDate(event.date)} às {event.time} · {event.company.city}</p><p>{event.location}</p><h2>Participação</h2><p>{event.audience} · {event.seats} vagas demonstrativas</p><p>{event.requirements}</p><p>Responsável · {event.contact}</p><DemoAction id={id} kind="event"/></div></section>;
   }
   if(area === "oportunidades"){
     const job=jobs.find(item=>item.id===id);
     if(!job) notFound();
-    return <section className="wrap section detail"><Link href="/oportunidades" className="eyebrow">Voltar às oportunidades</Link><p className="eyebrow">{job.category} · Demonstração</p><h1>{job.title}</h1><div className="prose"><Link href={"/empresas/"+job.company.id}>{job.company.name}</Link><p className="muted">{job.company.city} · {job.mode} · Até {formatDate(job.date)}</p><p>{job.description}</p><h2>Requisitos</h2><p>{job.course} · {job.requirements}</p><h2>Benefícios</h2><p>{job.benefits}</p><p className="notice">Vaga ilustrativa para explorar o catálogo.</p></div></section>;
+    return <section className="wrap section detail"><Link href="/oportunidades" className="eyebrow">Voltar às oportunidades</Link><p className="eyebrow">{job.category} · Demonstração</p><h1>{job.title}</h1><div className="prose"><Link href={"/empresas/"+job.company.id}>{job.company.name}</Link><p className="muted">{job.company.city} · {job.mode} · Até {formatDate(job.date)}</p><p>{job.description}</p><h2>Requisitos</h2><p>{job.course} · {job.requirements}</p><h2>Benefícios</h2><p>{job.benefits}</p><DemoAction id={id} kind="job"/></div></section>;
   }
   notFound();
 }

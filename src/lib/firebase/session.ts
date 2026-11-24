@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, type User } from "firebase/auth";
-import { firebaseConfigured, getFirebaseClient } from "./client";
+import { getFirebaseClient } from "./client";
 
 export function useFirebaseSession() {
   const [user, setUser] = useState<User | null | undefined>();
@@ -12,5 +12,5 @@ export function useFirebaseSession() {
     if (client) return onAuthStateChanged(client.auth, setUser);
   }, []);
 
-  return firebaseConfigured ? user : null;
+  return user;
 }

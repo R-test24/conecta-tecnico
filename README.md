@@ -16,15 +16,17 @@ Abra http://localhost:3000. Para validar: `npm run lint` e `npm run build`.
 ## Fluxos de demonstração
 
 - Catálogos públicos de eventos, oportunidades e empresas com pesquisa, filtros, detalhes e paginação de eventos.
-- O catálogo demonstrativo pode ser consultado sem conta. O painel exige cadastro e login com e-mail e senha.
-- Estudantes e escolas se cadastram em `/cadastro`. Empresas usam `/empresa?modo=cadastro`.
+- Use um nome fictício em `/cadastro` ou `/entrar` e selecione estudante, empresa ou escola. O painel depende de uma sessão no navegador. Registros simulados ficam no armazenamento local associado ao nome e ao papel escolhidos.
+- Como estudante, abra um evento ou vaga e confirme a simulação. Confira o resultado no painel. Projetos também podem ser adicionados ao portfólio.
+- Como empresa, simule a criação de eventos e vagas e registre a presença nos inscritos de exemplo. Os rascunhos ficam no painel local.
+- Como escola, simule pedidos de palestras e visitas e explore os relatórios de exemplo.
 - Para abrir a demonstração de `/admin` sem Firebase, defina uma chave aleatória de pelo menos 32 caracteres em `ADMIN_DEMO_SECRET` no arquivo `.env.local` e reinicie o servidor. O servidor emite uma sessão separada com validade de uma hora. As ações do painel são demonstrativas e se encerram com a página. Por padrão, a rota retorna 404.
 
 ## Firebase
 
 Para testar contas persistentes, copie `.env.example` para `.env.local`, preencha os cinco campos públicos do aplicativo Web e habilite E-mail/Senha no Firebase Authentication. O projeto Firebase precisa ter um banco Firestore e as regras versionadas de perfis aplicadas.
 
-Com a configuração completa, `/cadastro` cria uma conta e grava o perfil privado em `profiles/{uid}`, `/entrar` autentica com e-mail e senha, e `/painel` carrega o perfil ou permite concluir seu preenchimento. O papel solicitado no cadastro não concede permissões institucionais. Com a configuração ausente, o catálogo demonstrativo permanece público e os formulários de conta ficam desativados. O catálogo de eventos passa a consultar o Firestore.
+Com a configuração completa, `/cadastro` cria uma conta e grava o perfil privado em `profiles/{uid}`, `/entrar` autentica com e-mail e senha, e `/painel` carrega o perfil ou permite concluir seu preenchimento. O papel solicitado no cadastro não concede permissões institucionais. Com a configuração ausente, os fluxos demonstrativos continuam disponíveis. O catálogo de eventos passa a consultar o Firestore.
 
 Para uma operação real ainda são necessários gestão institucional, autorizações de participação, moderação, trilha administrativa persistente e políticas de privacidade para perfis de menores. As regras precisam ser validadas no Emulator Suite com o esquema definitivo antes de qualquer publicação.
 
