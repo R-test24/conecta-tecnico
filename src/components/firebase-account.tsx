@@ -21,12 +21,26 @@ const roleLabels: Record<Role, string> = {
   escola: "Escola",
 };
 
-function ProfileFields({ initialRole }: { initialRole?: string }) {
+function ProfileFields({ initialRole, allowCompany = false, disabled = false }: {
+  initialRole?: string;
+  allowCompany?: boolean;
+  disabled?: boolean;
+}) {
+  const availableRoles = roles.filter(role => allowCompany || role !== "empresa");
+  const [role, setRole] = useState<Role>(availableRoles.find(value => value === initialRole) ?? "estudante");
+  const label = role === "escola" ? "Nome da escola" : role === "empresa" ? "Nome da empresa" : "Nome do estudante";
+
   return <>
-    <label className="field">Nome<input name="name" autoComplete="name" required minLength={2} maxLength={60}/></label>
-    <label className="field">Perfil solicitado<select name="role" defaultValue={initialRole}>
-      {roles.map(role => <option key={role} value={role}>{roleLabels[role]}</option>)}
-    </select></label>
+    <label className="field">Tipo de conta
+      <select name="role" value={role} disabled={disabled}
+        onChange={event => setRole(event.target.value as Role)}>
+        {availableRoles.map(value => <option key={value} value={value}>{roleLabels[value]}</option>)}
+      </select>
+    </label>
+    <label className="field">{label}
+      <input name="name" autoComplete={role === "estudante" ? "name" : "organization"}
+        required minLength={2} maxLength={60} disabled={disabled}/>
+    </label>
   </>;
 }
 
@@ -86,7 +100,7 @@ export function FirebaseAccount({ register, initialRole, destination = "/painel"
     {register && (company ? <>
       <label className="field">Nome da empresa<input name="name" autoComplete="organization" required minLength={2} maxLength={60} disabled={unavailable}/></label>
       <input type="hidden" name="role" value="empresa"/>
-    </> : <ProfileFields initialRole={initialRole}/>)}
+    </> : <ProfileFields initialRole={initialRole} disabled={unavailable}/>)}
     <label className="field">E-mail<input name="email" type="email" autoComplete="email" required disabled={unavailable}/></label>
     <label className="field">Senha<input name="password" type="password" autoComplete={register ? "new-password" : "current-password"} minLength={register ? 8 : undefined} required disabled={unavailable}/></label>
     {message && <p role="alert" className="error">{message}</p>}
@@ -161,7 +175,11 @@ export function FirebaseDashboard() {
   }
 
   if (user === null) return <section className="section wrap"><h1>Meu painel</h1>
-    <Button asChild><Link href="/entrar">Entrar</Link></Button>
+    <p>Entre com sua conta para acessar o painel.</p>
+    <div className="actions">
+      <Button asChild><Link href="/entrar">Entrar</Link></Button>
+      <Button asChild variant="outline"><Link href="/cadastro">Criar conta</Link></Button>
+    </div>
   </section>;
 
   const current = profile?.uid === uid ? profile : undefined;
@@ -174,7 +192,7 @@ export function FirebaseDashboard() {
     </>}
     {current && "missing" in current && <form className="form" onSubmit={completeProfile}>
       <h2>Complete seu perfil</h2>
-      <ProfileFields/>
+      <ProfileFields allowCompany/>
       <Button disabled={busy}>Salvar perfil</Button>
     </form>}
     {current && "name" in current && <div className="card card-body">

@@ -2,27 +2,21 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { GraduationCap, Menu, Moon, Sun, X } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
-import { readProfile } from "@/lib/demo";
 import { firebaseConfigured } from "@/lib/firebase/client";
 import { useFirebaseSession } from "@/lib/firebase/session";
 
-const subscribe = (notify: () => void) => {
-  window.addEventListener("conecta-session", notify);
-  return () => window.removeEventListener("conecta-session", notify);
-};
 const navigation = [["Início","/"],["Eventos","/eventos"],["Oportunidades","/oportunidades"],["Empresas","/empresas"],["Como funciona","/como-funciona"],["Sobre nós","/sobre"]];
 export function Brand() {
   return <Link className="brand" href="/"><span className="brand-icon"><GraduationCap size={23}/></span><span>Conecta <span className="brand-accent">Tec</span><small>EDUCAÇÃO & CARREIRA</small></span></Link>;
 }
 export function Header() {
   const path = usePathname();
-  const demoSignedIn = useSyncExternalStore(subscribe, () => !firebaseConfigured && readProfile() !== null, () => false);
   const user = useFirebaseSession();
-  const signedIn = firebaseConfigured ? Boolean(user) : demoSignedIn;
+  const signedIn = Boolean(user);
   const [menuPath, setMenuPath] = useState<string | null>(null);
   const [dark, setDark] = useState(false);
   const reduce = useReducedMotion();

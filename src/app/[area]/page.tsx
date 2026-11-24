@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { CatalogView } from "@/components/catalog-view";
 import { FirebaseEventCatalog } from "@/components/firebase-events";
-import { AccountForm } from "@/components/account";
 import { FirebaseAccount } from "@/components/firebase-account";
 
 const headings = {
@@ -36,7 +35,19 @@ export default async function PublicPage({params,searchParams}:{params:Promise<{
     const [label,title,description] = headings[area];
     return <><section className="banner"><div className="wrap"><p className="eyebrow">{label}</p><h1>{title}</h1><p className="muted">{description}</p>{area === "empresas" && <div className="actions"><Link href="/empresa?modo=cadastro" className="button primary">Cadastrar empresa</Link><Link href="/empresa" className="button outline">Entrar como empresa</Link></div>}</div></section><section className="section wrap">{area === "eventos" && firebaseConfigured ? <FirebaseEventCatalog/> : <CatalogView key={query.categoria ?? ""} kind={area} initialCategory={query.categoria ?? ""}/>}</section></>;
   }
-  if(area === "entrar" || area === "cadastro") return <section className="wrap section form-wrap">{!firebaseConfigured && <p className="eyebrow">Ambiente demonstrativo</p>}<h1>{area === "entrar" ? "Entrar" : "Criar conta"}</h1><AccountForm register={area === "cadastro"} initialRole={query.perfil}/></section>;
+  if (area === "entrar" || area === "cadastro") {
+    const register = area === "cadastro";
+    return <section className="wrap section form-wrap stack">
+      <h1>{register ? "Cadastro de estudante ou escola" : "Entrar"}</h1>
+      <p className="muted">{register ? "Selecione o tipo de conta e informe seu nome, e-mail e senha." : "Use o e-mail e a senha da sua conta."}</p>
+      {!firebaseConfigured && <p className="notice" role="status">O envio do formulário será liberado após a configuração da autenticação.</p>}
+      <FirebaseAccount register={register} initialRole={query.perfil}/>
+      <div className="actions">
+        <Link className="button outline" href={register ? "/entrar" : "/cadastro"}>{register ? "Já tenho conta" : "Criar conta"}</Link>
+        <Link className="button outline" href={register ? "/empresa?modo=cadastro" : "/empresa"}>Acesso para empresas</Link>
+      </div>
+    </section>;
+  }
   if(area === "como-funciona" || area === "sobre") return <><section className="banner"><div className="wrap"><h1>{area === "sobre" ? "Sobre o Conecta Tec" : "Como funciona"}</h1><p className="muted">Educação, empresas e oportunidades reunidas em um só lugar.</p></div></section><section className="section wrap grid-three">{[
     ["Estudantes","Encontre experiências ligadas ao seu curso, simule inscrições e acompanhe suas candidaturas.","/eventos","Explorar eventos"],
     ["Empresas","Apresente seu trabalho, organize atividades e divulgue oportunidades para novos talentos.","/empresa?modo=cadastro","Cadastrar empresa"],
