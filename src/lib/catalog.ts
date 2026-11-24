@@ -4,12 +4,12 @@ export const companies = [
   { id: "horizonte", name: "Instituto Horizonte", mark: "H", category: "Educação", city: "Sorocaba", image: "talk", description: "Formação profissional e orientação para o primeiro emprego." },
 ];
 export const categories = [
-  { name: "Palestras", icon: "mic", color: "blue", text: "Aprenda com quem atua no mercado." },
-  { name: "Visitas técnicas", icon: "factory", color: "green", text: "Conheça empresas por dentro." },
-  { name: "Capacitações", icon: "book", color: "purple", text: "Desenvolva novas habilidades." },
-  { name: "Workshops", icon: "code", color: "orange", text: "Coloque a mão na massa." },
-  { name: "Estágios", icon: "case", color: "blue", text: "Comece sua carreira na prática." },
-  { name: "Jovem Aprendiz", icon: "users", color: "green", text: "Dê o primeiro passo profissional." },
+  { name: "Palestras", icon: "mic", image: "talk", color: "blue", text: "Aprenda com quem atua no mercado." },
+  { name: "Visitas técnicas", icon: "factory", image: "industry", color: "green", text: "Conheça empresas por dentro." },
+  { name: "Capacitações", icon: "book", image: "management", color: "purple", text: "Desenvolva novas habilidades." },
+  { name: "Workshops", icon: "code", image: "web", color: "orange", text: "Coloque a mão na massa." },
+  { name: "Estágios", icon: "case", image: "hero", color: "blue", text: "Comece sua carreira na prática." },
+  { name: "Jovem Aprendiz", icon: "users", image: "career", color: "green", text: "Dê o primeiro passo profissional." },
 ] as const;
 export const photographs: Record<string, string> = {
   hero: "Três profissionais consultam um notebook em um ambiente industrial",
