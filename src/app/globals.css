@@ -161,3 +161,6 @@ footer a:hover{color:var(--link)}
 .plan-card li svg{flex:none;margin-top:3px;color:var(--link)}
 .plans-note{text-align:center;margin-top:18px}
 @media(max-width:680px){.plans-grid{grid-template-columns:1fr}}
+
+.event-banner-preview{height:clamp(135px,25vw,220px);overflow:hidden;border-radius:12px}
+#criar-evento{scroll-margin-top:84px}

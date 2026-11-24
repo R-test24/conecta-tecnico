@@ -8,6 +8,7 @@ import { getFirebaseClient } from "@/lib/firebase/client";
 import { eventDate, eventOrganizer, watchEvents, type PilotEvent } from "@/lib/firebase/events";
 import { useFirebaseSession } from "@/lib/firebase/session";
 import { FirebaseAccount } from "./firebase-account";
+import { Photo } from "./photo";
 import { EventForm } from "./event-form";
 import { Button } from "./ui/button";
 
@@ -115,7 +116,7 @@ function AdminWorkspace({ uid }: { uid: string }) {
     <nav className="actions" aria-label="Seções administrativas">
       <a href="#empresas">Empresas</a>
       <a href="#eventos-pendentes">Eventos pendentes</a>
-      <a href="#criar-evento">Criar evento</a>
+      <a className="button primary" href="#criar-evento">Criar evento</a>
       <a href="#publicados">Publicados</a>
     </nav>
     {feedback && <p className={feedback.failed ? "error" : "notice"} role={feedback.failed ? "alert" : "status"}>{feedback.text}</p>}
@@ -139,6 +140,7 @@ function AdminWorkspace({ uid }: { uid: string }) {
         : !pendingEvents ? <p role="status">Carregando eventos…</p>
         : !pendingEvents.length ? <p>Nenhum evento aguardando aprovação.</p>
         : pendingEvents.map(event => <article key={event.id} className="card card-body stack">
+          {event.banner && <div className="event-banner-preview"><Photo image={event.banner}/></div>}
           <h3>{event.title}</h3>
           <p>{eventOrganizer(event)} · {eventDate(event)} · {event.location} · {event.capacity} vagas</p>
           <p>{event.description}</p>
@@ -150,6 +152,7 @@ function AdminWorkspace({ uid }: { uid: string }) {
     </section>
     <section id="criar-evento" className="card card-body stack">
       <h2>Criar evento do Conecta Tec</h2>
+      <p className="muted">Eventos criados aqui são publicados diretamente no catálogo.</p>
       <EventForm uid={uid} organizationName="Conecta Tec" direct/>
     </section>
     <section id="publicados" className="card card-body stack">

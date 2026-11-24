@@ -6,6 +6,7 @@ import { collection, doc, getDoc, getDocFromServer, onSnapshot } from "firebase/
 import { getFirebaseClient } from "@/lib/firebase/client";
 import { eventDate, eventOrganizer, registerForEvent, watchEvents, type PilotEvent } from "@/lib/firebase/events";
 import { useFirebaseSession } from "@/lib/firebase/session";
+import { Photo } from "./photo";
 import { EventForm } from "./event-form";
 import { Button } from "./ui/button";
 
@@ -49,6 +50,7 @@ export function FirebaseEventCatalog() {
     <EventListStatus {...result}/>
     {result.list && "events" in result.list && <div className="grid-three">
       {result.list.events.map(event => <article className="card card-body stack" key={event.id}>
+        {event.banner && <div className="event-banner-preview"><Photo image={event.banner}/></div>}
         <h2><Link href={"/eventos/" + event.id}>{event.title}</Link></h2>
         <p>{eventOrganizer(event)}</p>
         <p className="muted">{eventDate(event)} · {event.location}</p>
@@ -78,6 +80,7 @@ export function FirebaseEventDetail({ id }: { id: string }) {
       : record === null ? <h1>Evento indisponível</h1>
       : <>
         <h1>{record.title}</h1>
+        {record.banner && <div className="cover"><Photo image={record.banner}/></div>}
         <p>{eventOrganizer(record)}</p>
         <p className="muted">{eventDate(record)} · {record.location}</p>
         <p>{record.description}</p>
@@ -170,6 +173,7 @@ function Publication({ uid, organizationName }: { uid: string; organizationName:
     <h2>Meus eventos</h2>
     <EventListStatus {...result}/>
     {result.list && "events" in result.list && result.list.events.map(item => <article key={item.id} className="card card-body stack">
+      {item.banner && <div className="event-banner-preview"><Photo image={item.banner}/></div>}
       <h3>{item.status === "published" ? <Link href={"/eventos/" + item.id}>{item.title}</Link> : item.title}</h3>
       {item.status !== "published" && <p>{item.status === "pending" ? "Aguardando aprovação" : "Evento recusado"}</p>}
       {item.status === "published" && <>

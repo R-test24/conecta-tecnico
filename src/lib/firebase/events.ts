@@ -1,3 +1,4 @@
+import { readEventBanner } from "@/lib/event-banner";
 import {
   addDoc, collection, doc, onSnapshot, query, runTransaction, serverTimestamp,
   Timestamp, where, type Firestore,
@@ -14,6 +15,7 @@ export type PilotEvent = {
   registeredCount: number;
   organizationId: string;
   organizationName: string;
+  banner?: string;
 };
 
 export function watchEvents(db: Firestore, next: (events: PilotEvent[]) => void, error: () => void, filter: { organizationId: string } | { status: "pending" | "published" } = { status: "published" }) {
@@ -40,7 +42,7 @@ export function eventDate(event: PilotEvent) {
   }).format(event.startsAt.toDate());
 }
 
-export async function createEvent(db: Firestore, uid: string, organizationName: string, fields: FormData, status: "pending" | "published") {
+export async function parseEventFields(fields: FormData) {
   const title = String(fields.get("title") ?? "").trim();
   const description = String(fields.get("description") ?? "").trim();
   const location = String(fields.get("location") ?? "").trim();
@@ -54,8 +56,14 @@ export async function createEvent(db: Firestore, uid: string, organizationName: 
     throw new Error("Confira o título, a descrição, o local, a data futura e o número de vagas.");
   }
 
+  const banner = await readEventBanner(fields.get("image"));
+  return { title, description, location, startsAt, capacity, ...(banner ? { banner } : {}) };
+}
+
+export async function createEvent(db: Firestore, uid: string, organizationName: string, fields: FormData, status: "pending" | "published") {
+  const event = await parseEventFields(fields);
   await addDoc(collection(db, "events"), {
-    title, description, location, startsAt: Timestamp.fromDate(startsAt), capacity,
+    ...event, startsAt: Timestamp.fromDate(event.startsAt),
     organizationId: uid, organizationName, status, registeredCount: 0,
     createdAt: serverTimestamp(),
   });

@@ -10,6 +10,8 @@ import { z } from "zod";
 import { categories, companies, events, jobs } from "@/lib/catalog";
 import { readData, readProfile, saveData, type DemoData, type Profile } from "@/lib/demo";
 import { EventCard, JobCard, CompanyCard } from "./cards";
+import { EventBannerField } from "./event-banner-field";
+import { readEventBanner } from "@/lib/event-banner";
 import { Photo } from "./photo";
 
 const menus = {
@@ -77,6 +79,7 @@ function Sample({rows}:{rows:string[]}){
 const schema=z.object({title:z.string().trim().min(3,"Informe pelo menos três caracteres.").max(100),description:z.string().trim().min(10,"Informe pelo menos dez caracteres.").max(2000)});
 function PostForm({type,post}:{type:string;post:(item:DemoData["posts"][number])=>boolean}){
   const [problem,setProblem]=useState("");
+  const [bannerKey, setBannerKey] = useState(0);
   const form=useForm<z.infer<typeof schema>>({resolver:zodResolver(schema)});
   return <form className="form card card-body" onSubmit={event=>{
     const fields=new FormData(event.currentTarget);
@@ -86,15 +89,11 @@ function PostForm({type,post}:{type:string;post:(item:DemoData["posts"][number])
       if(type==="evento"){
         const read=(key:string)=>String(fields.get(key) ?? "");
         Object.assign(entry,{date:read("date"),time:read("time"),city:read("city"),location:read("location"),course:read("course"),requirements:read("requirements"),seats:Number(read("seats")),description:read("category")+" · "+entry.description});
-        const image=fields.get("image");
-        if(image instanceof File && image.size){
-          if(image.size>750_000 || !["image/jpeg","image/png","image/webp"].includes(image.type)){setProblem("Use JPG, PNG ou WebP de até 750 KB.");return;}
-          try{entry.image=await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));reader.onerror=reject;reader.readAsDataURL(image);});}
-          catch{setProblem("Não foi possível abrir a imagem.");return;}
-        }
+        try { entry.image = await readEventBanner(fields.get("image")); }
+        catch (error) { setProblem(error instanceof Error ? error.message : "Não foi possível abrir a imagem."); return; }
       }
       if(type==="solicitação")entry.description=String(fields.get("company"))+" · "+String(fields.get("activity"))+" · "+entry.description;
-      if(post(entry)){form.reset();(event.target as HTMLFormElement).reset();}
+      if(post(entry)){form.reset();(event.target as HTMLFormElement).reset();setBannerKey(value => value + 1);}
     })(event);
-  }}><label className="field">Título<input {...form.register("title")} maxLength={100}/>{form.formState.errors.title && <small>{form.formState.errors.title.message}</small>}</label><label className="field">Descrição<textarea {...form.register("description")} rows={4} maxLength={2000}/>{form.formState.errors.description && <small>{form.formState.errors.description.message}</small>}</label>{type==="evento" && <><label className="field">Categoria<select name="category">{categories.slice(0,4).map(item=><option key={item.name}>{item.name}</option>)}</select></label><div className="filters"><label className="field">Data<input required type="date" name="date"/></label><label className="field">Horário<input required type="time" name="time"/></label><label className="field">Vagas<input required type="number" min="1" max="500" name="seats"/></label></div>{[["Cidade","city"],["Local","location"],["Cursos recomendados","course"],["Requisitos","requirements"]].map(([label,name])=><label className="field" key={name}>{label}<input required name={name} maxLength={160}/></label>)}<label className="field">Imagem da capa<input name="image" type="file" accept="image/jpeg,image/png,image/webp"/></label></>}{type==="solicitação" && <><label className="field">Empresa<select name="company">{companies.map(c=><option key={c.id}>{c.name}</option>)}</select></label><label className="field">Atividade<select name="activity"><option>Palestra</option><option>Visita técnica</option></select></label></>}{problem && <p role="alert" className="error">{problem}</p>}<button className="button primary" disabled={form.formState.isSubmitting}>Salvar {type} de demonstração</button></form>;
+  }}><label className="field">Título<input {...form.register("title")} maxLength={100}/>{form.formState.errors.title && <small>{form.formState.errors.title.message}</small>}</label><label className="field">Descrição<textarea {...form.register("description")} rows={4} maxLength={2000}/>{form.formState.errors.description && <small>{form.formState.errors.description.message}</small>}</label>{type==="evento" && <><label className="field">Categoria<select name="category">{categories.slice(0,4).map(item=><option key={item.name}>{item.name}</option>)}</select></label><div className="filters"><label className="field">Data<input required type="date" name="date"/></label><label className="field">Horário<input required type="time" name="time"/></label><label className="field">Vagas<input required type="number" min="1" max="500" name="seats"/></label></div>{[["Cidade","city"],["Local","location"],["Cursos recomendados","course"],["Requisitos","requirements"]].map(([label,name])=><label className="field" key={name}>{label}<input required name={name} maxLength={160}/></label>)}<EventBannerField key={bannerKey}/></>}{type==="solicitação" && <><label className="field">Empresa<select name="company">{companies.map(c=><option key={c.id}>{c.name}</option>)}</select></label><label className="field">Atividade<select name="activity"><option>Palestra</option><option>Visita técnica</option></select></label></>}{problem && <p role="alert" className="error">{problem}</p>}<button className="button primary" disabled={form.formState.isSubmitting}>Salvar {type} de demonstração</button></form>;
 }
