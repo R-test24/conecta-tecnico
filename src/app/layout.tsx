@@ -5,7 +5,7 @@ import "./globals.css";
 import { Header, Footer } from "@/components/chrome";
 
 export const metadata: Metadata = {
-  title: { default: "Conecta Técnico — Educação e oportunidades", template: "%s | Conecta Técnico" },
+  title: { default: "Conecta Tec — Educação e oportunidades", template: "%s | Conecta Tec" },
   description: "Descubra eventos, capacitações e oportunidades para estudantes do Ensino Médio Integrado ao Técnico.",
 };
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

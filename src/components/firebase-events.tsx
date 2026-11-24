@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { collection, doc, getDoc, getDocFromServer, onSnapshot } from "firebase/firestore";
 import { getFirebaseClient } from "@/lib/firebase/client";
-import { eventDate, registerForEvent, watchEvents, type PilotEvent } from "@/lib/firebase/events";
+import { eventDate, eventOrganizer, registerForEvent, watchEvents, type PilotEvent } from "@/lib/firebase/events";
 import { useFirebaseSession } from "@/lib/firebase/session";
 import { EventForm } from "./event-form";
 import { Button } from "./ui/button";
@@ -50,7 +50,7 @@ export function FirebaseEventCatalog() {
     {result.list && "events" in result.list && <div className="grid-three">
       {result.list.events.map(event => <article className="card card-body stack" key={event.id}>
         <h2><Link href={"/eventos/" + event.id}>{event.title}</Link></h2>
-        <p>{event.organizationName}</p>
+        <p>{eventOrganizer(event)}</p>
         <p className="muted">{eventDate(event)} · {event.location}</p>
         <p>{event.startsAt.toMillis() <= now ? "Inscrições encerradas" : `${event.capacity - event.registeredCount} vagas disponíveis`}</p>
       </article>)}
@@ -78,7 +78,7 @@ export function FirebaseEventDetail({ id }: { id: string }) {
       : record === null ? <h1>Evento indisponível</h1>
       : <>
         <h1>{record.title}</h1>
-        <p>{record.organizationName}</p>
+        <p>{eventOrganizer(record)}</p>
         <p className="muted">{eventDate(record)} · {record.location}</p>
         <p>{record.description}</p>
         <p>{record.capacity - record.registeredCount} vagas disponíveis</p>

@@ -1,4 +1,4 @@
-# Conecta Técnico
+# Conecta Tec
 
 Plataforma demonstrativa para estudantes do Ensino Médio Integrado ao Técnico, empresas e escolas. Next.js App Router, TypeScript, Tailwind CSS, componentes locais no padrão shadcn/ui, Lucide, Motion, React Hook Form, Zod e Recharts.
 
@@ -47,7 +47,7 @@ O piloto usa horário de Brasília e admite de 1 a 500 vagas por evento. O catá
 
 Com Firebase habilitado, acesse `/admin` e entre com uma conta administrativa. Para habilitar o primeiro administrador em um projeto novo, crie uma conta separada em Authentication e, usando o Console Firebase ou o painel do emulador, crie o documento `administrators/{uid}` com `enabled: true`. O campo habilita o acesso. Para revogá-lo, altere o valor para `false` ou remova o documento.
 
-O administrador aprova empresas, revisa eventos enviados por elas e pode publicar um evento diretamente em nome do Conecta Técnico. Eventos de empresa começam como **Aguardando aprovação** e aparecem no catálogo depois de aprovados.
+O administrador aprova empresas, revisa eventos enviados por elas e pode publicar um evento diretamente em nome do Conecta Tec. Eventos de empresa começam como **Aguardando aprovação** e aparecem no catálogo depois de aprovados.
 
 ## Fotografias
 

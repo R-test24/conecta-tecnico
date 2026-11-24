@@ -134,7 +134,7 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time
         && (canSubmitCompanyEvent(request.resource.data) || (
           isAdmin() && request.resource.data.status == 'published'
-          && request.resource.data.organizationName == 'Conecta Técnico'
+          && request.resource.data.organizationName in ['Conecta Tec', 'Conecta Técnico']
         ));
 
       allow update: if isAdmin() && validEvent(request.resource.data)

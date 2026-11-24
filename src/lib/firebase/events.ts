@@ -30,6 +30,10 @@ export function watchEvents(db: Firestore, next: (events: PilotEvent[]) => void,
   }, error);
 }
 
+export function eventOrganizer(event: PilotEvent) {
+  return event.organizationName === "Conecta Técnico" ? "Conecta Tec" : event.organizationName;
+}
+
 export function eventDate(event: PilotEvent) {
   return new Intl.DateTimeFormat("pt-BR", {
     dateStyle: "long", timeStyle: "short", timeZone: "America/Sao_Paulo",

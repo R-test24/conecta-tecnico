@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { signOut } from "firebase/auth";
 import { collection, doc, onSnapshot, query, setDoc, updateDoc, where } from "firebase/firestore";
 import { getFirebaseClient } from "@/lib/firebase/client";
-import { eventDate, watchEvents, type PilotEvent } from "@/lib/firebase/events";
+import { eventDate, eventOrganizer, watchEvents, type PilotEvent } from "@/lib/firebase/events";
 import { useFirebaseSession } from "@/lib/firebase/session";
 import { FirebaseAccount } from "./firebase-account";
 import { EventForm } from "./event-form";
@@ -140,7 +140,7 @@ function AdminWorkspace({ uid }: { uid: string }) {
         : !pendingEvents.length ? <p>Nenhum evento aguardando aprovação.</p>
         : pendingEvents.map(event => <article key={event.id} className="card card-body stack">
           <h3>{event.title}</h3>
-          <p>{event.organizationName} · {eventDate(event)} · {event.location} · {event.capacity} vagas</p>
+          <p>{eventOrganizer(event)} · {eventDate(event)} · {event.location} · {event.capacity} vagas</p>
           <p>{event.description}</p>
           <div className="actions">
             <Button disabled={Boolean(busy)} onClick={() => reviewEvent(event, "published")}>Aprovar e publicar</Button>
@@ -149,8 +149,8 @@ function AdminWorkspace({ uid }: { uid: string }) {
         </article>)}
     </section>
     <section id="criar-evento" className="card card-body stack">
-      <h2>Criar evento do Conecta Técnico</h2>
-      <EventForm uid={uid} organizationName="Conecta Técnico" direct/>
+      <h2>Criar evento do Conecta Tec</h2>
+      <EventForm uid={uid} organizationName="Conecta Tec" direct/>
     </section>
     <section id="publicados" className="card card-body stack">
       <h2>Eventos publicados</h2>
