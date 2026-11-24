@@ -17,7 +17,7 @@ export default function Home() {
       <div className="hero-copy"><div className="hero-badge"><Sparkles size={15}/> Uma nova conexão entre educação e mercado.</div>
       <h1>Seu talento merece encontrar grandes <em>oportunidades.</em></h1>
       <p>Conectamos estudantes, escolas e empresas para transformar conhecimento em experiências reais, capacitação e desenvolvimento profissional.</p>
-      <div className="actions"><Link className="button primary" href="/oportunidades">Explorar oportunidades</Link><Link className="button outline" href="/empresas"><Building2 size={17}/> Sou uma empresa</Link></div>
+      <div className="actions"><Link className="button primary" href="/oportunidades">Explorar oportunidades</Link><Link className="button outline" href="/empresa"><Building2 size={17}/> Sou uma empresa</Link></div>
       <div className="benefits"><span><GraduationCap/> Ensino técnico</span><span><Users/> Conexões profissionais</span><span><Zap/> Aprendizado na prática</span></div></div>
       <div className="hero-visual"><Photo image="hero" priority/><Link className="float float-top" href="/oportunidades"><span className="tile-icon blue"><Zap size={20}/></span><div><strong>Novas oportunidades</strong><small>Explore vagas e estágios</small></div></Link><Link className="float float-bottom" href="/empresas"><span className="tile-icon green"><Building2 size={20}/></span><div><strong>Empresas parceiras</strong><small>Conheça o catálogo</small></div></Link></div>
     </div></section>

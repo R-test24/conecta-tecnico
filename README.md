@@ -16,9 +16,9 @@ Abra http://localhost:3000. Para validar: `npm run lint` e `npm run build`.
 ## Fluxos de demonstração
 
 - Catálogos públicos de eventos, oportunidades e empresas com pesquisa, filtros, detalhes e paginação de eventos.
-- Use um nome fictício em `/cadastro` ou `/entrar` e selecione estudante, empresa ou escola. O painel depende de uma sessão no navegador. Registros simulados ficam no armazenamento local associado ao nome e ao papel escolhidos.
+- Use um nome fictício em `/cadastro` ou `/entrar` e selecione estudante ou escola. O painel depende de uma sessão no navegador. Registros simulados ficam no armazenamento local associado ao nome e ao papel escolhidos.
 - Como estudante, abra um evento ou vaga e confirme a simulação. Confira o resultado no painel. Projetos também podem ser adicionados ao portfólio.
-- Como empresa, simule a criação de eventos e vagas e registre a presença nos inscritos de exemplo. Os rascunhos ficam no painel local.
+- Para cadastrar uma empresa, use `/empresa?modo=cadastro`. O acesso em `/empresa` exige uma conta do Firebase com e-mail e senha.
 - Como escola, simule pedidos de palestras e visitas e explore os relatórios de exemplo.
 - Para abrir a demonstração de `/admin` sem Firebase, defina uma chave aleatória de pelo menos 32 caracteres em `ADMIN_DEMO_SECRET` no arquivo `.env.local` e reinicie o servidor. O servidor emite uma sessão separada com validade de uma hora. As ações do painel são demonstrativas e se encerram com a página. Por padrão, a rota retorna 404.
 

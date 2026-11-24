@@ -10,7 +10,7 @@ export const emptyData:DemoData = {events:[],jobs:[],posts:[]};
 export function readProfile():Profile | null {
   try {
     const item = JSON.parse(sessionStorage.getItem("conecta-profile") ?? "null") as Profile | null;
-    return item && typeof item.name === "string" && roles.includes(item.role) ? item : null;
+    return item && typeof item.name === "string" && (item.role === "estudante" || item.role === "escola") ? item : null;
   } catch {return null;}
 }
 const key = (profile:Profile) => "conecta-demo:" + profile.role + ":" + profile.name;

@@ -9,7 +9,7 @@ import {
   signOut,
 } from "firebase/auth";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
-import { getFirebaseClient } from "@/lib/firebase/client";
+import { firebaseConfigured, getFirebaseClient } from "@/lib/firebase/client";
 import { useFirebaseSession } from "@/lib/firebase/session";
 import { roles, type Role } from "@/lib/demo";
 import { OrganizationEvents } from "./firebase-events";
@@ -45,8 +45,9 @@ async function saveProfile(uid: string, fields: FormData) {
   });
 }
 
-export function FirebaseAccount({ register, initialRole, destination = "/painel" }: { register: boolean; initialRole?: string; destination?: "/painel" | "/admin" }) {
+export function FirebaseAccount({ register, initialRole, destination = "/painel", company = false }: { register: boolean; initialRole?: string; destination?: "/painel" | "/admin"; company?: boolean }) {
   const router = useRouter();
+  const unavailable = !firebaseConfigured;
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -82,11 +83,14 @@ export function FirebaseAccount({ register, initialRole, destination = "/painel"
   }
 
   return <form className="form" onSubmit={submit}>
-    {register && <ProfileFields initialRole={initialRole}/>}
-    <label className="field">E-mail<input name="email" type="email" autoComplete="email" required/></label>
-    <label className="field">Senha<input name="password" type="password" autoComplete={register ? "new-password" : "current-password"} minLength={register ? 8 : undefined} required/></label>
+    {register && (company ? <>
+      <label className="field">Nome da empresa<input name="name" autoComplete="organization" required minLength={2} maxLength={60} disabled={unavailable}/></label>
+      <input type="hidden" name="role" value="empresa"/>
+    </> : <ProfileFields initialRole={initialRole}/>)}
+    <label className="field">E-mail<input name="email" type="email" autoComplete="email" required disabled={unavailable}/></label>
+    <label className="field">Senha<input name="password" type="password" autoComplete={register ? "new-password" : "current-password"} minLength={register ? 8 : undefined} required disabled={unavailable}/></label>
     {message && <p role="alert" className="error">{message}</p>}
-    <Button disabled={busy}>{register ? "Criar conta" : "Entrar"}</Button>
+    <Button disabled={busy || unavailable}>{register ? "Criar conta" : "Entrar"}</Button>
   </form>;
 }
 
