@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { categories, companies, events, jobs } from "@/lib/catalog";
-import { readData, readProfile, saveData, type DemoData, type Profile } from "@/lib/demo";
+import { readData, readProfile, saveData, signOutDemoAccount, type DemoData, type Profile } from "@/lib/demo";
 import { EventCard, JobCard, CompanyCard } from "./cards";
 import { EventBannerField } from "./event-banner-field";
 import { readEventBanner } from "@/lib/event-banner";
@@ -28,7 +28,7 @@ export function Dashboard(){
   if(!ready)return <section className="section wrap" aria-busy="true"><div className="skeleton"/></section>;
   const profile=readProfile();
   if(!profile)return <section className="section wrap"><h1>Painel</h1><p className="notice">Entre para abrir uma sessão de demonstração.</p><Link className="button primary" href="/entrar">Entrar</Link></section>;
-  return <Workspace key={profile.role+profile.name} profile={profile}/>;
+  return <Workspace key={profile.email} profile={profile}/>;
 }
 function Workspace({profile}:{profile:Profile}){
   const router=useRouter();
@@ -68,7 +68,7 @@ function Workspace({profile}:{profile:Profile}){
     case "Cursos técnicos":content=<Sample rows={["Informática","Administração","Automação Industrial"]}/>;break;
     case "Escolas parceiras":content=<Sample rows={["Escola Técnica Modelo · Campinas","Instituto Técnico Exemplo · Sorocaba"]}/>;break;
     case "Inscrições":content=<div className="stack">{["Estudante A","Estudante B"].map(name=><label key={name} className="card card-body row">{name} · Inscrição de exemplo<input type="checkbox" checked={rows("presença").some(item=>item.id===name)} onChange={event=>event.target.checked?post({id:name,title:name,type:"presença",description:"Presença simulada"}):commit({...data,posts:data.posts.filter(item=>item.id!==name)},"Presença removida.")}/> Presença</label>)}</div>;break;
-    case "Configurações":content=<button className="button outline" onClick={()=>{sessionStorage.removeItem("conecta-profile");window.dispatchEvent(new Event("conecta-session"));router.push("/entrar");}}>Sair da sessão</button>;break;
+    case "Configurações":content=<button className="button outline" onClick={()=>{signOutDemoAccount();router.push("/entrar");}}>Sair da sessão</button>;break;
     default:content=<div className="card card-body prose"><p>Nome de demonstração · {profile.name}</p><p>Perfil · {roles[role]}</p></div>;
   }
   return <><section className="banner"><div className="wrap"><p className="eyebrow">{roles[role]} · Demonstração</p><h1>Olá, {profile.name}</h1><p className="muted">As alterações ficam neste navegador.</p></div></section><section className="section wrap dashboard"><aside className="card card-body"><button className="button outline full" aria-expanded={showMenu} aria-controls="painel-menu" onClick={()=>setShowMenu(!showMenu)}>{showMenu?"Recolher menu":"Abrir menu"}</button>{showMenu&&<nav id="painel-menu" className="dash-nav" aria-label="Painel">{menus[role].map(label=><button key={label} aria-current={tab===label?"page":undefined} onClick={()=>{setTab(label);setMessage("");}}>{label}</button>)}</nav>}</aside><div className="dash-content"><h2>{tab}</h2><p role="status" className={message?"notice":undefined}>{message}</p>{content}</div></section></>;

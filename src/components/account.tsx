@@ -1,31 +1,76 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useId, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useId, useRef, useState, type FormEvent } from "react";
 import { toast } from "sonner";
-import { z } from "zod";
-import { readData, readProfile, roles, saveData } from "@/lib/demo";
+import { readData, readProfile, registerDemoAccount, roles, saveData, signInDemoAccount, type Role } from "@/lib/demo";
 import { Button } from "./ui/button";
 import { FirebaseAccount } from "./firebase-account";
 import { firebaseConfigured } from "@/lib/firebase/client";
 
-const schema = z.object({name:z.string().trim().min(2,"Informe pelo menos dois caracteres.").max(60,"Use até 60 caracteres."),role:z.enum(roles)});
 export function AccountForm({register,initialRole}:{register:boolean;initialRole?:string}) {
   return firebaseConfigured
     ? <FirebaseAccount register={register} initialRole={initialRole}/>
     : <DemoAccount register={register} initialRole={initialRole}/>;
 }
 
-function DemoAccount({register,initialRole}:{register:boolean;initialRole?:string}) {
-  const router=useRouter();
-  const form=useForm<z.infer<typeof schema>>({resolver:zodResolver(schema),defaultValues:{role:initialRole==="empresa" || initialRole==="escola" ? initialRole : "estudante"}});
-  return <form className="form" onSubmit={form.handleSubmit(data=>{
-    try {sessionStorage.setItem("conecta-profile",JSON.stringify(data));window.dispatchEvent(new Event("conecta-session"));router.push("/painel");}
-    catch {form.setError("root",{message:"O navegador bloqueou o armazenamento da sessão."});}
-  })}><p className="notice">Use um nome fictício. A sessão é simulada neste navegador.</p><label className="field">Nome de demonstração<input autoComplete="off" {...form.register("name")} aria-invalid={!!form.formState.errors.name}/>{form.formState.errors.name && <small>{form.formState.errors.name.message}</small>}</label><label className="field">Perfil<select {...form.register("role")}><option value="estudante">Estudante</option><option value="empresa">Empresa</option><option value="escola">Escola</option></select></label>{form.formState.errors.root && <p role="alert" className="error">{form.formState.errors.root.message}</p>}<Button>{register ? "Criar perfil demonstrativo" : "Entrar na demonstração"}</Button></form>;
+function DemoAccount({ register, initialRole }: { register: boolean; initialRole?: string }) {
+  const router = useRouter();
+  const [role, setRole] = useState<Role>(roles.find(value => value === initialRole) ?? "estudante");
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState("");
+  const nameLabel = role === "empresa" ? "Nome da empresa" : role === "escola" ? "Nome da escola" : "Nome do estudante";
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (busy) return;
+    const fields = new FormData(event.currentTarget);
+    const email = String(fields.get("email") ?? "");
+    const password = String(fields.get("password") ?? "");
+    setBusy(true);
+    setProblem("");
+    try {
+      if (register) {
+        await registerDemoAccount({ name: String(fields.get("name") ?? ""), role, email }, password);
+        router.push("/entrar?cadastro=concluido");
+      } else {
+        await signInDemoAccount(email, password);
+        router.push("/painel");
+      }
+    } catch (error) {
+      setProblem(error instanceof Error && error.constructor === Error
+        ? error.message : "Não foi possível concluir. Confira se o navegador permite armazenar a conta.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return <form className="form" onSubmit={submit}>
+    <p className="notice">Conta de demonstração disponível neste navegador. Use um e-mail fictício e uma senha só para este teste.</p>
+    {register && <>
+      <label className="field">Tipo de perfil
+        <select value={role} onChange={event => setRole(event.currentTarget.value as Role)}>
+          <option value="estudante">Estudante</option>
+          <option value="empresa">Empresa</option>
+          <option value="escola">Escola</option>
+        </select>
+      </label>
+      <label className="field">{nameLabel}
+        <input name="name" autoComplete={role === "estudante" ? "name" : "organization"} required minLength={2} maxLength={60}/>
+      </label>
+    </>}
+    <label className="field">E-mail<input name="email" type="email" autoComplete="username" required maxLength={254}/></label>
+    <label className="field">Senha
+      <input name="password" type="password" autoComplete={register ? "new-password" : "current-password"}
+        required minLength={register ? 8 : undefined} maxLength={128}/>
+      {register && <small>Use pelo menos 8 caracteres.</small>}
+    </label>
+    {problem && <p role="alert" className="error">{problem}</p>}
+    <Button disabled={busy}>{busy ? "Aguarde…" : register ? "Criar conta de teste" : "Entrar"}</Button>
+    <Link href={register ? "/entrar" : "/cadastro"}>{register ? "Já tenho conta" : "Criar conta de teste"}</Link>
+  </form>;
 }
+
 export function DemoAction({id,kind}:{id:string;kind:"event"|"job"}) {
   const [message,setMessage]=useState("");
   const [needsProfile,setNeedsProfile]=useState(false);

@@ -16,7 +16,7 @@ Abra http://localhost:3000. Para validar: `npm run lint` e `npm run build`.
 ## Fluxos de demonstração
 
 - Catálogos públicos de eventos, oportunidades e empresas com pesquisa, filtros, detalhes e paginação de eventos.
-- Use um nome fictício em `/cadastro` ou `/entrar` e selecione estudante, empresa ou escola. O painel depende de uma sessão no navegador. Registros simulados ficam no armazenamento local associado ao nome e ao papel escolhidos.
+- Em `/cadastro`, crie uma conta de teste de estudante, empresa ou escola com nome, e-mail fictício e senha de pelo menos 8 caracteres. Depois entre em `/entrar` no mesmo navegador. A conta e os registros simulados ficam no armazenamento local.
 - Como estudante, abra um evento ou vaga e confirme a simulação. Confira o resultado no painel. Projetos também podem ser adicionados ao portfólio.
 - Como empresa, simule a criação de eventos e vagas e registre a presença nos inscritos de exemplo. Os rascunhos ficam no painel local.
 - Como escola, simule pedidos de palestras e visitas e explore os relatórios de exemplo.
